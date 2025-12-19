@@ -4,12 +4,6 @@
   "visibility": "public",
   "url": "https://github.com/vijayvuyyuru/multi-led-module",
   "description": "Modular generic component: multi-led",
-  "models": [
-    {
-      "api": "rdk:component:generic",
-      "model": "vijayvuyyuru:multi-led:multi-led"
-    }
-  ],
   "entrypoint": "dist/main",
   "first_run": "",
   "build": {

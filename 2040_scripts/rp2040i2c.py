@@ -257,7 +257,7 @@ class PixelStrand:
         print("handling sequence")
         animations = []
         for animation in sequence.get("animations", []):
-            animation_name = animation["set_animation"]
+            animation_name = animation["animation_name"]
             speed = float(animation.get("speed", self.speed))
             tail_length = int(animation.get("tail_length", self.tail_length))
             bounce = int(animation.get("bounce", self.bounce))
@@ -274,7 +274,7 @@ class PixelStrand:
                 colors = self.parse_colors(colors)
             animations.append(self.handle_animation_name(animation_name, self.strand, speed, colors, tail_length, bounce, size, spacing, period, num_sparkles, step))
 
-        sequence = AnimationSequence(*animations, advance_interval=float(sequence.get("duration", 0)), auto_clear=True)
+        sequence = AnimationSequence(*animations, advance_interval=int(sequence.get("duration", 0)), auto_clear=True)
         self.active_animation = sequence
         self.animation_name = "sequence"
 
@@ -375,22 +375,23 @@ with I2CTarget(board.SCL, board.SDA, (0x40,)) as device:
                 if i2c_target_request.is_read:
                     print(f"read request to address '0x{address:02x}'")
 
-                    # if error_text != "":
-                    #     buffer = bytes(error_text.encode("utf-8"))
-                    #     i2c_target_request.write(buffer)
-                    # else:
-                    #     temp = "success"
-                    #     i2c_target_request.write(temp.encode("utf-8"))
+                    # for our emulated device, return a fixed value for the request
+                    if error_text != "":
+                        buffer = bytes(error_text.encode("utf-8"))
+                        i2c_target_request.write(buffer)
+                    else:
+                        temp = "success"
+                        i2c_target_request.write(temp.encode("utf-8"))
                 else:
                     # transaction is a write request
-                    full_msg = ""
+                    full_msg_bytes = bytearray()
                     for i in range(NUM_FETCHES):
-                        time.sleep(0.01)
-                        data = i2c_target_request.read(32)
+                        time.sleep(0.002)
+                        data = i2c_target_request.read(64)
                         # print(f"received data: {data}")
                         if len(data) > 0:
-                            full_msg = full_msg + data.decode()
-                    cleaned_msg = full_msg.replace("\x00", "")
+                            full_msg_bytes.extend(data)
+                    cleaned_msg = full_msg_bytes.decode('utf-8').replace("\x00", "")
                     command = {}
                     try:
                         command = json.loads(cleaned_msg)
