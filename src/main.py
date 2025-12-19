@@ -17,7 +17,7 @@ import json
 import io
 
 LOG = logging.getLogger(__name__)
-MESSAGE_CHUNK_SIZE = 32
+MESSAGE_CHUNK_SIZE = 64
 
 
 # used to divide a byte string into 32 byte chunks to send over i2c and then put back together on the read side
